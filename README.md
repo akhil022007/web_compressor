@@ -47,13 +47,13 @@ web_compressor/
 git clone https://github.com/akhil022007/web_compressor.git
 cd web_compressor
 ### 2.Build the C++ compressor
-cd file_compressor
 g++ src/*.cpp -Iinclude -o compress
 ### 3.Copy the compressor to the backend
-cp compress ../web_compressor/backend/
-chmod +x ../web_compressor/backend/compress
+cp compress backend/
+chmod +x backend/compress
+
 ### 4.Create Python virtual environment
-cd ../web_compressor/backend
+cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install flask
