@@ -46,18 +46,13 @@ web_compressor/
 ```bash
 git clone https://github.com/akhil022007/web_compressor.git
 cd web_compressor
-### 2.Build the C++ compressor
-g++ src/*.cpp -Iinclude -o compress
-### 3.Copy the compressor to the backend
-cp compress backend/
-chmod +x backend/compress
 
-### 4.Create Python virtual environment
+### 2.Create Python virtual environment
 cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install flask
-### 5.Run the server
+### 3.Run the server
 python app.py
 open-http://127.0.0.1:5000
 
