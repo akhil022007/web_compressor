@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Compressor</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: linear-gradient(135deg, #0f4c75, #3282b8);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 460px;
+            padding: 30px;
+            border-radius: 18px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0f4c75;
+            margin-bottom: 15px;
+        }
+
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .compress-btn {
+            background-color: #2ecc71;
+        }
+
+        .compress-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .decompress-btn {
+            background-color: #3498db;
+        }
+
+        .decompress-btn:hover {
+            background-color: #2c80b4;
+        }
+
+        .download-btn {
+            background-color: #9b59b6;
+            margin-top: 10px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+        }
+
+        .result {
+            display: none;
+            background: #f1f9ff;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        hr {
+            margin: 25px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- COMPRESS -->
+    <div class="section">
+        <h2>Compress File</h2>
+
+        <input type="file" id="cfile">
+        <select id="calgo">
+            <option value="huff">Huffman</option>
+            <option value="rle">RLE</option>
+        </select>
+
+        <button class="compress-btn" onclick="compress()">Compress</button>
+
+        <div class="result" id="cresult">
+            <p>Original size: <b><span id="os"></span></b> bytes</p>
+            <p>Compressed size: <b><span id="cs"></span></b> bytes</p>
+            <p>Compression ratio: <b><span id="cr"></span>%</b></p>
+
+            <button class="download-btn" onclick="downloadCompressed()">
+                Download Compressed File
+            </button>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- DECOMPRESS -->
+    <div class="section">
+        <h2>Decompress File</h2>
+
+        <input type="file" id="dfile">
+        <select id="dalgo">
+            <option value="huff">Huffman</option>
+            <option value="rle">RLE</option>
+        </select>
+
+        <button class="decompress-btn" onclick="decompress()">Decompress</button>
+
+        <div class="result" id="dresult">
+            <p>Compressed size: <b><span id="dcs"></span></b> bytes</p>
+            <p>Decompressed size: <b><span id="dds"></span></b> bytes</p>
+            <p>Expansion ratio: <b><span id="dr"></span>%</b></p>
+
+            <button class="download-btn" onclick="downloadDecompressed()">
+                Download Decompressed File
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+let compressedFile = "";
+let decompressedFile = "";
+
+function compress() {
+    const file = document.getElementById("cfile").files[0];
+    const algo = document.getElementById("calgo").value;
+
+    if (!file) {
+        alert("Please select a file");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("algo", algo);
+
+    fetch("/compress", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("os").innerText = data.original_size;
+        document.getElementById("cs").innerText = data.compressed_size;
+        document.getElementById("cr").innerText = data.compression_ratio;
+
+        compressedFile = data.compressed_file;
+        document.getElementById("cresult").style.display = "block";
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Compression failed");
+    });
+}
+
+function downloadCompressed() {
+    window.location.href = "/download/" + compressedFile;
+}
+
+function decompress() {
+    const file = document.getElementById("dfile").files[0];
+    const algo = document.getElementById("dalgo").value;
+
+    if (!file) {
+        alert("Please select a file");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("algo", algo);
+
+    fetch("/decompress", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("dcs").innerText = data.compressed_size;
+        document.getElementById("dds").innerText = data.decompressed_size;
+        document.getElementById("dr").innerText = data.decompression_ratio;
+
+        decompressedFile = data.output_file;
+        document.getElementById("dresult").style.display = "block";
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Decompression failed");
+    });
+}
+
+function downloadDecompressed() {
+    window.location.href = "/download/" + decompressedFile;
+}
+</script>
+
+</body>
+</html>
